@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Отзывы</title><link rel="stylesheet" href="../App.css"><script src="https://telegram.org/js/telegram-web-app.js"></script></head>
+<body><main>
+<h1>Отзывы</h1>
+<a class="btn primary" id="add" href="../CreateOrder/Comment.html" hidden>Оставить отзыв</a>
+<ul class="box" id="list" hidden></ul>
+<p class="hint" id="empty" hidden>Отзывов пока нет.</p>
+</main>
+<script src="../App.js"></script>
+<script>
+back('MainPage.html');
+const o = param('order');
+if (o) location.replace('../CreateOrder/Comment.html?order=' + encodeURIComponent(o));
+const last = store.get('lastOrder', null);
+$('add').hidden = !(last && !last.reviewed);          // отзыв только если заказ был, а отзыва нет
+api('/reviews').then(list => {
+    $('empty').hidden = list.length > 0; $('list').hidden = !list.length;
+    list.forEach(r => {
+        const li = el('li', 'row'), c = el('span');
+        c.append(el('b', '', r.name + '  ' + '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating)), el('small', '', r.text || ''));
+        li.append(c); $('list').append(li);
+    });
+}).catch(e => { $('empty').hidden = false; $('empty').textContent = e.message; });
+</script></body></html>
